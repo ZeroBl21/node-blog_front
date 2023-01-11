@@ -26,7 +26,7 @@ const Header = () => {
   return (
     <header>
       <Link to='/' className='logo'>
-        ZeroBl
+        &lt;ZeroBl /&gt;
       </Link>
       <nav>
         {user ? (
