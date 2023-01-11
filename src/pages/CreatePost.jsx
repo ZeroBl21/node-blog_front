@@ -1,14 +1,19 @@
 import { useState } from 'react'
+
+import { Navigate } from 'react-router-dom'
+
 import { Editor } from '../components'
 
 const initialProps = {
   title: '',
   summary: '',
-  content: ''
+  content: '',
+  file: null
 }
 
 const CreatePost = () => {
   const [post, setPost] = useState(initialProps)
+  const [redirect, setRedirect] = useState(false)
 
   const handleChange = (e) => {
     setPost({
@@ -22,12 +27,25 @@ const CreatePost = () => {
 
     const data = new FormData()
     data.set('title', post.title)
+    data.set('summary', post.summary)
+    data.set('content', post.content)
+    data.set('file', post.file[0])
 
     fetch('http://localhost:4000/post', {
       method: 'POST',
-      body: 'test',
-      credentials: true
+      body: data
     })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res?.post) {
+          setRedirect(true)
+        }
+      })
+      .catch((err) => console.error(err))
+  }
+
+  if (redirect) {
+    return <Navigate to='/' />
   }
 
   return (
@@ -44,7 +62,10 @@ const CreatePost = () => {
         value={post.summary}
         onChange={handleChange}
       />
-      <input type='file' onChange={(e) => setPost({ ...post, file: e.target.files })} />
+      <input
+        type='file'
+        onChange={(e) => setPost({ ...post, file: e.target.files })}
+      />
       <Editor
         value={post.content}
         onChange={(newValue) => setPost({ ...post, content: newValue })}
