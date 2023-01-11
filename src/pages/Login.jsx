@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
+import { useUser } from '../context/UserContext'
+
 const initialState = {
   username: '',
   password: ''
@@ -9,6 +11,7 @@ const initialState = {
 const Login = () => {
   const [form, setForm] = useState(initialState)
   const [redirect, setRedirect] = useState(false)
+  const { setUser } = useUser()
 
   const handleChange = (e) => {
     setForm({
@@ -17,9 +20,10 @@ const Login = () => {
     })
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    const response = await fetch('http://localhost:4000/login', {
+
+    fetch('http://localhost:4000/login', {
       method: 'POST',
       body: JSON.stringify(form),
       headers: {
@@ -27,10 +31,14 @@ const Login = () => {
       },
       credentials: 'include'
     })
-
-    if (response.ok) {
-      setRedirect('/')
-    }
+      .then((res) => res.json())
+      .then((res) => {
+        if (res?.user) {
+          setUser(res)
+          setRedirect(true)
+        }
+      })
+      .catch((err) => console.error(err))
   }
 
   if (redirect) {
