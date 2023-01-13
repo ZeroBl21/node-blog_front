@@ -11,11 +11,12 @@ const Home = () => {
   }, [])
 
   return (
-    <>
+    <section className='home'>
       {posts.length > 0
         ? posts.map((post) => (
             <Post
               key={post._id}
+              id={post._id}
               title={post.title}
               summary={post.summary}
               cover={post.cover}
@@ -24,7 +25,7 @@ const Home = () => {
             />
         ))
         : null}
-    </>
+    </section>
   )
 }
 
