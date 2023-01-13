@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { Navigate } from 'react-router-dom'
+import { useParams, Navigate } from 'react-router-dom'
 
 import { Editor } from '../components'
 
@@ -12,8 +12,24 @@ const initialProps = {
 }
 
 const CreatePost = () => {
+  const { id } = useParams()
   const [post, setPost] = useState(initialProps)
   const [redirect, setRedirect] = useState(false)
+
+  useEffect(() => {
+    if (id) {
+      fetch('http://localhost:4000/post/' + id)
+        .then((res) => res.json())
+        .then((res) => {
+          setPost({
+            title: res?.post?.title,
+            summary: res?.post?.summary,
+            content: res?.post?.content,
+            file: null
+          })
+        })
+    }
+  }, [])
 
   const handleChange = (e) => {
     setPost({
@@ -26,10 +42,27 @@ const CreatePost = () => {
     e.preventDefault()
 
     const data = new FormData()
+    data.set('id', id)
     data.set('title', post.title)
     data.set('summary', post.summary)
     data.set('content', post.content)
-    data.set('file', post.file[0])
+    if (post?.file?.[0]) {
+      data.set('file', post.file?.[0])
+    }
+
+    if (id) {
+      fetch('http://localhost:4000/post/' + id, {
+        method: 'PUT',
+        body: data,
+        credentials: 'include'
+      }).then((res) => {
+        if (res.ok) {
+          setRedirect(true)
+        }
+      })
+
+      return
+    }
 
     fetch('http://localhost:4000/post', {
       method: 'POST',
@@ -46,7 +79,7 @@ const CreatePost = () => {
   }
 
   if (redirect) {
-    return <Navigate to='/' />
+    return <Navigate to={`/post/${id}`} />
   }
 
   return (
@@ -71,7 +104,9 @@ const CreatePost = () => {
         value={post.content}
         onChange={(newValue) => setPost({ ...post, content: newValue })}
       />
-      <button style={{ marginTop: '5px' }}>CreatePost</button>
+      <button style={{ marginTop: '5px' }}>
+        {id ? 'Update Post' : 'Create Post'}
+      </button>
     </form>
   )
 }
