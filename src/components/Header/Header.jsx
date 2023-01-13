@@ -11,7 +11,7 @@ const Header = () => {
       credentials: 'include'
     })
       .then((res) => res.json())
-      .then((res) => setUser(res?.username))
+      .then((res) => setUser(res))
   }, [])
 
   function logout() {
