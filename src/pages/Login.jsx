@@ -34,7 +34,7 @@ const Login = () => {
       .then((res) => res.json())
       .then((res) => {
         if (res?.user) {
-          setUser(res)
+          setUser(res.user)
           setRedirect(true)
         }
       })
